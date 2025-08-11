@@ -224,6 +224,14 @@ class RealtimeVisualizer:
         info_panel = self._create_tracking_info_image(panel_width, panel_height)
         canvas[panel_height+30:panel_height*2+30, panel_width+30:panel_width*2+30] = info_panel
         
+        # 添加3D重建显示到右下角的一部分
+        if hasattr(self, '_render_3d_reconstruction'):
+            recon_x = panel_width + 50
+            recon_y = panel_height + 50  
+            recon_w = min(300, panel_width - 40)
+            recon_h = min(200, panel_height - 40)
+            self._render_3d_reconstruction(canvas, recon_x, recon_y, recon_w, recon_h)
+        
         # 添加分割线
         cv2.line(canvas, (panel_width+20, 0), (panel_width+20, canvas_height), (100, 100, 100), 2)
         cv2.line(canvas, (0, panel_height+20), (canvas_width, panel_height+20), (100, 100, 100), 2)

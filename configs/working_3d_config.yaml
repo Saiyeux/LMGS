@@ -1,0 +1,48 @@
+frontend:
+  loftr_config:
+    device: cpu
+    match_threshold: 0.5
+    model_path: null
+    resize_to:
+    - 640
+    - 480
+  pnp_solver:
+    confidence: 0.95
+    method: SOLVEPNP_ITERATIVE
+    reprojection_threshold: 3.0
+input:
+  camera:
+    fps: 15
+    left_device: 0
+    resolution:
+    - 640
+    - 480
+    right_device: 1
+  source: camera
+monogs:
+  cam:
+    H: 480
+    W: 640
+    cx: 320.0
+    cy: 240.0
+    fx: 525.0
+    fy: 525.0
+  mapping:
+    every_frame: 1
+    new_points: 1000
+output:
+  save_intermediate: true
+  save_reconstruction: true
+  save_trajectory: true
+performance_targets:
+  max_gpu_memory_gb: 2
+  max_memory_gb: 4
+  target_fps: 10
+visualization: true
+visualization_config:
+  save_mode: false
+  show_pointcloud: true
+  show_trajectory: true
+  window_size:
+  - 1200
+  - 700
