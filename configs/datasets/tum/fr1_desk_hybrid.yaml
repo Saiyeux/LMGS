@@ -1,0 +1,29 @@
+# TUM FR1/Desk 数据集混合SLAM配置
+inherit_from: "configs/base/hybrid_base.yaml"
+
+# 继承MonoGS原始配置
+MonoGS:
+  inherit_from: "thirdparty/MonoGS/configs/mono/tum/fr1_desk.yaml"
+
+# 数据集特定配置
+Dataset:
+  type: 'tum'
+  sensor_type: 'monocular'
+  dataset_path: "thirdparty/MonoGS/datasets/tum/rgbd_dataset_freiburg1_desk"
+  
+# 针对fr1_desk的优化配置
+EfficientLoFTR:
+  model_path: "thirdparty/EfficientLoFTR/weights/indoor_ds.ckpt"  # 室内模型
+  confidence_threshold: 0.15           # 室内环境降低阈值
+
+PnPSolver:
+  ransac_threshold: 1.5                # 室内精度更高，降低阈值
+  min_inliers: 15                      # 桌面场景特征较少
+
+# 结果配置
+Results:
+  save_results: true
+  save_dir: "results/hybrid_slam/tum_fr1_desk"
+  use_gui: true
+  eval_rendering: true
+  use_wandb: false

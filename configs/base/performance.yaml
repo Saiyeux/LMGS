@@ -1,0 +1,44 @@
+# 性能优化专用配置
+
+# 高性能模式配置
+HighPerformance:
+  EfficientLoFTR:
+    precision: "fp16"                  # 使用半精度加速
+    max_keypoints: 1000                # 减少关键点数量
+    confidence_threshold: 0.3          # 提高置信度阈值
+    
+  HybridTracking:
+    feature_matching_interval: 2       # 降低匹配频率
+    render_iterations_reduced: 20      # 进一步减少迭代
+    
+  Performance:
+    target_fps: 30                     # 提高目标FPS
+    enable_adaptive_strategy: true
+    aggressive_memory_management: true
+
+# 高质量模式配置  
+HighQuality:
+  EfficientLoFTR:
+    model_type: "full"                 # 使用完整模型
+    precision: "fp32"                  # 使用全精度
+    confidence_threshold: 0.1          # 降低置信度阈值
+    
+  HybridTracking:
+    feature_matching_interval: 1       # 每帧匹配
+    render_iterations_reduced: 50      # 增加迭代次数
+    
+  Performance:
+    target_fps: 15                     # 降低FPS要求
+    enable_adaptive_strategy: false
+
+# 实时模式配置
+RealTime:
+  EfficientLoFTR:
+    precision: "fp16"
+    max_keypoints: 800
+    enable_cache: true
+    
+  Performance:
+    target_fps: 25
+    enable_adaptive_strategy: true
+    memory_pool_size: 256              # 减少内存使用

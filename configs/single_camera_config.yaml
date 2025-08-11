@@ -1,0 +1,59 @@
+# 单摄像头测试配置
+# 当双摄像头中有一个不工作时使用
+
+inherit_from: 'base/hybrid_slam_base.yaml'
+
+project_name: 'Hybrid SLAM - Single Camera Test'
+version: '1.0.0'
+description: 'Single camera test for debugging'
+
+# 运行模式
+mode: 'slam'
+real_time: true
+visualization: true
+device: 'cuda'
+
+# 输入数据源配置 - 使用摄像头1（工作正常的那个）
+input:
+  source: 'camera'
+  
+  camera:
+    left_device: 1      # 使用摄像头1作为主摄像头
+    right_device: 1     # 暂时使用同一摄像头模拟双目
+    resolution: [640, 480]
+    fps: 25             # 略低于实际测试的26.3 FPS
+    calibration_file: null
+
+# 前端配置
+frontend:
+  device: 'cuda'
+  min_matches: 30     # 降低要求适应单摄像头
+  min_inliers: 15
+  feature_confidence: 0.15
+
+# EfficientLoFTR配置
+EfficientLoFTR:
+  model_path: 'thirdparty/EfficientLoFTR/weights/eloftr_outdoor.ckpt'
+  resize_to: [640, 480]
+  match_threshold: 0.15
+  max_keypoints: 1024
+
+# 可视化配置
+visualization_config:
+  window_size: [800, 600]  # 较小窗口
+  show_trajectory: true
+  show_pointcloud: false   # 单摄像头时关闭点云
+  show_left_image: true
+  show_right_image: false  # 单摄像头时不显示右图
+
+# 性能配置
+performance_targets:
+  target_fps: 15      # 降低目标帧率
+  max_memory_gb: 6
+  max_gpu_memory_gb: 4
+
+# 输出配置
+output:
+  save_trajectory: true
+  save_keyframes: true
+  save_pointcloud: false

@@ -1,0 +1,2 @@
+2025-08-11 19:29:15,128 - ERROR - Failed to initialize MonoGS backend: name 'rs' is not defined
+2025-08-11 19:29:15,128 - WARNING - Failed to initialize MonoGS backend: name 'rs' is not defined

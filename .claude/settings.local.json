@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(conda remove:*)",
+      "Bash(where conda)",
+      "Bash(E:anaconda3condabinconda.bat remove pytorch torchvision torchaudio cudatoolkit -y)",
+      "Bash(cmd /c:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(set TORCH_CUDA_ARCH_LIST=\"6.1;7.5;8.6\")",
+      "Bash(set FORCE_CUDA=1)",
+      "Bash(where nvcc)",
+      "Bash(set \"CUDA_HOME=E:\\anaconda3\\envs\\LMGS\")",
+      "Bash(set \"TORCH_CUDA_ARCH_LIST=6.1;7.5;8.6\")",
+      "Bash(set \"FORCE_CUDA=1\")",
+      "Bash(set \"CUDA_HOME=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.6\")",
+      "Bash(set \"TORCH_CUDA_ARCH_LIST=8.6\")",
+      "Bash(nvcc:*)",
+      "Bash(set \"CUDA_HOME=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.8\")",
+      "Bash(where cl)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(find:*)",
+      "Bash(timeout 3 python run_hybrid_slam.py --mock --no-vis)",
+      "Bash(timeout:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  }
+}

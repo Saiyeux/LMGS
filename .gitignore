@@ -1,0 +1,5 @@
+/thirdparty
+/captures
+/calibration_images
+*pyc*
+/test_improved_mock_output

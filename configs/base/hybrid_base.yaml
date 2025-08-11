@@ -1,0 +1,63 @@
+# Hybrid SLAM 基础配置文件
+# EfficientLoFTR + OpenCV PnP + MonoGS 融合系统
+
+# 系统基础配置
+System:
+  name: "HybridSLAM"
+  version: "1.0.0-dev"
+  device: "cuda"
+  precision: "fp32"  # fp32, fp16, mixed
+
+# EfficientLoFTR配置
+EfficientLoFTR:
+  model_type: "opt"                    # 'full' for best quality, 'opt' for best efficiency
+  precision: "fp32"                    # 'fp32', 'mp', 'fp16' 
+  confidence_threshold: 0.2            # 匹配置信度阈值
+  max_keypoints: 2000                  # 最大关键点数量
+  model_path: "thirdparty/EfficientLoFTR/weights/eloftr_outdoor.ckpt"
+  enable_cache: true                   # 启用特征缓存
+  cache_size: 10                       # 缓存大小
+
+# OpenCV PnP求解器配置
+PnPSolver:
+  method: "SOLVEPNP_EPNP"             # PnP求解方法
+  ransac_threshold: 2.0                # RANSAC阈值(像素)
+  ransac_confidence: 0.99              # RANSAC置信度
+  min_inliers: 20                      # 最少内点数量
+  max_iterations: 1000                 # 最大迭代次数
+  use_iterative_refinement: true       # 使用迭代优化
+
+# 混合跟踪配置  
+HybridTracking:
+  enable_feature_tracking: true        # 是否启用特征跟踪
+  feature_matching_interval: 1         # 特征匹配间隔(帧)
+  render_iterations_reduced: 30        # 有特征初值时的渲染迭代次数
+  render_iterations_full: 100          # 无特征初值时的渲染迭代次数
+  fallback_threshold: 5                # 连续失败次数阈值
+  confidence_weight: 0.3               # 特征置信度权重
+  geometric_weight: 0.4                # 几何约束权重  
+  photometric_weight: 0.3              # 光度约束权重
+
+# 性能优化配置
+Performance:
+  target_fps: 20                       # 目标FPS
+  min_fps: 15                          # 最低FPS阈值
+  enable_adaptive_strategy: true       # 启用自适应策略
+  memory_pool_size: 512                # 内存池大小(MB)
+  enable_profiling: false              # 启用性能分析
+  enable_memory_monitor: true          # 启用内存监控
+  
+# 内存管理配置
+Memory:
+  feature_cache_size: 10               # 特征缓存大小
+  gaussian_cache_size: 20              # 高斯缓存大小
+  enable_memory_pool: true             # 启用内存池
+  auto_cleanup_interval: 100           # 自动清理间隔(帧)
+
+# 可视化配置
+Visualization:
+  show_matches: false                  # 显示特征匹配
+  show_pose_trace: false               # 显示位姿轨迹
+  save_debug_images: false             # 保存调试图像
+  match_visualization_threshold: 0.5   # 匹配可视化阈值
+  trajectory_update_interval: 10       # 轨迹更新间隔

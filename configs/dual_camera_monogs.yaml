@@ -1,0 +1,59 @@
+# 双目摄像头 + MonoGS 3D重建配置
+input:
+  source: camera
+  camera:
+    left_device: 0
+    right_device: 1
+    resolution: [640, 480]
+    fps: 30
+    calibration_file: "camera_calibration.json"
+
+# MonoGS 3D重建配置
+monogs:
+  cam:
+    H: 480
+    W: 640
+    fx: 525.0
+    fy: 525.0
+    cx: 320.0
+    cy: 240.0
+  tracking:
+    use_gt_camera: false
+    forward_prop: true
+    num_kf: 4
+  mapping:
+    first_mesh: true
+    new_points: 2000
+    every_frame: 1
+    no_vis_on_first_frame: false
+
+# 前端配置
+frontend:
+  loftr_config:
+    model_type: outdoor
+    confidence_threshold: 0.3
+  pnp_solver:
+    method: "SOLVEPNP_ITERATIVE"
+    confidence: 0.99
+    reprojection_threshold: 1.0
+
+# 可视化配置
+visualization: true
+visualization_config:
+  window_size: [1400, 900]
+  show_trajectory: true
+  show_pointcloud: true
+  save_mode: false
+  max_trajectory_points: 1000
+
+# 性能配置
+performance_targets:
+  target_fps: 20
+  max_memory_gb: 8
+  max_gpu_memory_gb: 6
+
+# 输出配置
+output:
+  save_trajectory: true
+  save_intermediate: true
+  save_reconstruction: true

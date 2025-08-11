@@ -1,0 +1,9 @@
+2025-08-11 19:31:12,084 - INFO - MonoGS backend initialized successfully (simplified mode)
+2025-08-11 19:31:12,119 - INFO - Starting Hybrid SLAM System...
+2025-08-11 19:31:35,467 - INFO - Initialized dataset: StereoCameraDataset
+2025-08-11 19:48:38,560 - INFO - MonoGS backend initialized successfully (simplified mode)
+2025-08-11 19:48:38,586 - INFO - Starting Hybrid SLAM System...
+2025-08-11 19:49:02,295 - INFO - Initialized dataset: StereoCameraDataset
+2025-08-11 19:50:12,118 - INFO - MonoGS backend initialized successfully (simplified mode)
+2025-08-11 19:50:12,152 - INFO - Starting Hybrid SLAM System...
+2025-08-11 19:50:35,996 - INFO - Initialized dataset: StereoCameraDataset

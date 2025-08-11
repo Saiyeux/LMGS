@@ -1,0 +1,47 @@
+# TUM RGB-D Dataset Configuration
+# 继承基础配置并设置TUM数据集特定参数
+
+inherit_from: '../base/hybrid_slam_base.yaml'
+
+# Dataset specific settings
+dataset:
+  name: 'TUM-RGBD'
+  type: 'rgbd'
+  data_path: 'data/TUM-RGBD'
+  sequence: 'rgbd_dataset_freiburg3_office'
+  
+  # Camera parameters (fr3)
+  camera:
+    fx: 535.4
+    fy: 539.2
+    cx: 320.1
+    cy: 247.6
+    width: 640
+    height: 480
+    depth_scale: 5000.0
+    
+  # Data loading
+  skip_frames: 1
+  max_frames: -1  # -1 for all frames
+  start_frame: 0
+
+# Override for TUM dataset
+EfficientLoFTR:
+  model_path: 'models/eloftr_indoor.ckpt'  # Use indoor model for TUM
+  confidence_threshold: 0.15  # Lower threshold for indoor scenes
+
+PnPSolver:
+  pnp_ransac_threshold: 1.5  # Tighter threshold for RGB-D
+  pnp_min_inliers: 15
+
+HybridTracking:
+  min_matches: 30  # Lower requirement for indoor scenes
+  keyframe_translation_threshold: 0.05  # More frequent keyframes
+
+# MonoGS specific for TUM
+MonoGS:
+  inherit_from: 'thirdparty/MonoGS/configs/rgbd/tum/fr3_office.yaml'
+
+# Output settings
+logging:
+  output_dir: 'outputs/tum_rgbd/fr3_office'

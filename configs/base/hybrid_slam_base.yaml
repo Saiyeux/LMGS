@@ -1,0 +1,72 @@
+# Hybrid SLAM Base Configuration
+# 混合SLAM系统基础配置
+
+# Device settings
+device: 'cuda'
+precision: 'fp32'  # fp32, fp16
+
+# System settings
+num_workers: 4
+batch_size: 1
+seed: 42
+
+# EfficientLoFTR Configuration
+EfficientLoFTR:
+  model_path: 'thirdparty/EfficientLoFTR/weights/eloftr_outdoor.ckpt'
+  device: 'cuda'
+  confidence_threshold: 0.2
+  max_matches: 2000
+  resize_to_divisible_32: true
+  grayscale_conversion: true
+
+# PnP Solver Configuration
+PnPSolver:
+  pnp_method: 'SOLVEPNP_ITERATIVE'  # ITERATIVE, EPNP, P3P, AP3P
+  pnp_ransac_threshold: 2.0
+  pnp_max_iterations: 1000
+  pnp_confidence: 0.99
+  pnp_min_inliers: 20
+
+# Hybrid Tracking Configuration
+HybridTracking:
+  min_matches: 50
+  min_inliers: 20
+  feature_confidence: 0.2
+  tracking_lost_threshold: 10
+  
+  # Tracking strategy
+  feature_first: true
+  rendering_refinement: true
+  hybrid_fallback: true
+  
+  # Keyframe selection
+  keyframe_translation_threshold: 0.1
+  keyframe_rotation_threshold: 0.05
+
+# MonoGS Integration (inherited from original config)
+MonoGS:
+  inherit_from: 'thirdparty/MonoGS/configs/mono/tum/fr3_office.yaml'
+  
+  # Override specific parameters
+  tracking:
+    lr: 0.01
+    iterations: 100
+  
+  gaussian_splatting:
+    opacity_lr: 0.05
+    feature_lr: 0.0025
+    position_lr: 0.00016
+
+# Logging and Debugging
+logging:
+  level: 'INFO'
+  save_trajectory: true
+  save_matches: false
+  save_performance_stats: true
+  output_dir: 'outputs/hybrid_slam'
+
+# Performance Settings
+performance:
+  enable_profiling: false
+  profile_output: 'profile_results.txt'
+  memory_monitoring: true

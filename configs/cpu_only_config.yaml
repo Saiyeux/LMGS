@@ -1,0 +1,36 @@
+frontend:
+  loftr_config:
+    device: cpu
+    match_threshold: 0.3
+    model_type: outdoor
+    resize_to:
+    - 640
+    - 480
+  pnp_solver:
+    confidence: 0.99
+    method: SOLVEPNP_ITERATIVE
+    reprojection_threshold: 2.0
+input:
+  camera:
+    left_device: 0
+    resolution:
+    - 640
+    - 480
+    right_device: 1
+  source: camera
+monogs:
+  cam:
+    H: 480
+    W: 640
+    cx: 320.0
+    cy: 240.0
+    fx: 525.0
+    fy: 525.0
+performance_targets:
+  max_memory_gb: 4
+  target_fps: 10
+visualization: true
+visualization_config:
+  window_size:
+  - 1200
+  - 800
