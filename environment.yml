@@ -1,0 +1,110 @@
+name: LMGS
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  # Core Python
+  - python=3.10.18
+  - pip=25.2
+  - setuptools=80.9.0
+  - wheel=0.45.1
+  
+  # System libraries
+  - _libgcc_mutex=0.1
+  - _openmp_mutex=4.5
+  - bzip2=1.0.8
+  - ca-certificates=2025.8.3
+  - ld_impl_linux-64=2.44
+  - libexpat=2.7.1
+  - libffi=3.4.6
+  - libgcc=15.1.0
+  - libgcc-ng=15.1.0
+  - libgomp=15.1.0
+  - liblzma=5.8.1
+  - libnsl=2.0.1
+  - libsodium=1.0.20
+  - libsqlite=3.50.4
+  - libstdcxx=15.1.0
+  - libstdcxx-ng=15.1.0
+  - libuuid=2.38.1
+  - libxcrypt=4.4.36
+  - libzlib=1.3.1
+  - ncurses=6.5
+  - openssl=3.5.2
+  - readline=8.2
+  - sqlite=3.50.4
+  - tk=8.6.13
+  - tzdata=2025b
+  - xz=5.8.1
+  - zeromq=4.3.5
+  
+  # Jupyter and IPython ecosystem
+  - ipykernel=6.30.1
+  - ipython=8.37.0
+  - jupyter_client=8.6.3
+  - jupyter_core=5.8.1
+  - matplotlib-inline=0.1.7
+  - nest-asyncio=1.6.0
+  
+  # Python utilities and development tools
+  - asttokens=3.0.0
+  - debugpy=1.8.16
+  - decorator=5.2.1
+  - executing=2.2.0
+  - importlib-metadata=8.7.0
+  - jedi=0.19.2
+  - packaging=25.0
+  - parso=0.8.4
+  - pexpect=4.9.0
+  - pickleshare=0.7.5
+  - platformdirs=4.3.8
+  - prompt-toolkit=3.0.51
+  - psutil=7.0.0
+  - ptyprocess=0.7.0
+  - pure_eval=0.2.3
+  - pygments=2.19.2
+  - python-dateutil=2.9.0.post0
+  - six=1.17.0
+  - stack_data=0.6.3
+  - traitlets=5.14.3
+  - typing_extensions=4.14.1
+  - wcwidth=0.2.13
+  - zipp=3.23.0
+  
+  # Communication and networking
+  - comm=0.2.3
+  - keyutils=1.6.3
+  - krb5=1.21.3
+  - libedit=3.1.20250104
+  - pyzmq=27.0.1
+  - tornado=6.5.2
+  
+  # Exception handling
+  - exceptiongroup=1.3.0
+  
+  # Additional packages (may be installed via pip in the actual environment)
+  # These are commonly found in ML environments but may need to be installed separately:
+  # - numpy
+  # - scipy
+  # - pandas
+  # - matplotlib
+  # - seaborn
+  # - scikit-learn
+  # - torch
+  # - torchvision
+  # - pytorch-lightning
+  # - opencv
+  # - trimesh
+  # - flask
+  # - plotly
+  # - jupyter
+  # - jupyterlab
+  
+  # Pip packages (uncomment and add as needed)
+  # - pip:
+  #   - package-name==version
+  
+# Platform specification (uncomment if needed)
+# platforms:
+#   - linux-64
