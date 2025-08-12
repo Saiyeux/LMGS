@@ -4,298 +4,188 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a computer vision research project that implements a **Hybrid SLAM System** integrating:
+This repository (LMGS) implements a 3D reconstruction system that integrates multiple computer vision and SLAM technologies. The main component is a hybrid 3D reconstruction system that combines EfficientLoFTR feature matching with MonoGS (Gaussian Splatting SLAM) for real-time 3D scene reconstruction from camera inputs.
 
-- **EfficientLoFTR** - Semi-dense local feature matching with sparse-level speed
-- **OpenCV PnP** - Perspective-n-Point pose estimation for geometric constraints
-- **MonoGS** - 3D Gaussian Splatting SLAM supporting mono, stereo, and RGB-D cameras
+### Core Architecture
 
-The main contribution is a real-time dual-camera reconstruction system that combines feature matching, geometric solving, and neural radiance field rendering.
+The system is built around three main components:
 
-## Development Environment
-
-### Environment Setup Commands
-```bash
-# Windows setup (recommended)
-setup_environment.bat
-
-# Manual setup (note: uses MonoGS environment.yml)
-conda env create -f thirdparty/MonoGS/environment.yml
-conda activate MonoGS
-cd thirdparty/MonoGS
-pip install ./submodules/simple-knn
-pip install ./submodules/diff-gaussian-rasterization
-cd ../..
-
-# Development installation
-pip install -e .
-```
+1. **SmartCameraManager** (`3d_reconstruction.py:40-177`) - Handles camera initialization and frame acquisition with automatic fallback to mock data when real cameras are unavailable
+2. **HybridAdvanced3DReconstructor** (`3d_reconstruction.py:179-488`) - The main reconstruction engine that integrates multiple algorithms
+3. **Interactive3DViewer** and **UltimateVisualization** (`3d_reconstruction.py:490+`) - Real-time 3D visualization and user interface
 
 ### Third-party Dependencies
-The project requires compiling CUDA extensions for MonoGS:
-```bash
-cd thirdparty/MonoGS
-pip install ./submodules/simple-knn
-pip install ./submodules/diff-gaussian-rasterization
+
+The project integrates two major third-party libraries:
+
+- **EfficientLoFTR** (`thirdparty/EfficientLoFTR/`) - Semi-dense local feature matching for stereo vision
+- **MonoGS** (`thirdparty/MonoGS/`) - Gaussian Splatting SLAM system for monocular/RGB-D/stereo SLAM
+
+## Development Commands
+
+### Environment Setup
+
+1. **Main LMGS Environment**:
+   ```bash
+   # Install the modular package
+   pip install -e .
+   # OR install dependencies manually
+   pip install -r requirements.txt
+   ```
+
+2. **EfficientLoFTR Environment** (optional for advanced features):
+   ```bash
+   cd thirdparty/EfficientLoFTR
+   conda env create -f environment.yaml
+   conda activate eloftr
+   pip install torch==2.0.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+   pip install -r requirements.txt
+   ```
+
+3. **MonoGS Environment** (optional for SLAM features):
+   ```bash
+   cd thirdparty/MonoGS
+   conda env create -f environment.yml
+   conda activate MonoGS
+   ```
+
+### Running the Modular System
+
+- **Main 3D Reconstruction System** (new modular version):
+  ```bash
+  # Basic usage
+  python run_reconstruction.py
+  
+  # With CUDA support
+  python run_reconstruction.py --device cuda
+  
+  # Headless mode (no GUI)
+  python run_reconstruction.py --headless
+  
+  # Custom settings
+  python run_reconstruction.py --max-cameras 3 --fps-limit 15 --output-dir results
+  
+  # Different window size
+  python run_reconstruction.py --window-size 1920 1080
+  ```
+
+- **Legacy Single Script** (deprecated):
+  ```bash
+  python 3d_reconstruction.py
+  ```
+
+- **MonoGS SLAM Examples**:
+  ```bash
+  # Monocular SLAM
+  python thirdparty/MonoGS/slam.py --config thirdparty/MonoGS/configs/mono/tum/fr3_office.yaml
+  
+  # RGB-D SLAM
+  python thirdparty/MonoGS/slam.py --config thirdparty/MonoGS/configs/rgbd/tum/fr3_office.yaml
+  
+  # Live demo with RealSense
+  python thirdparty/MonoGS/slam.py --config thirdparty/MonoGS/configs/live/realsense.yaml
+  ```
+
+- **Evaluation Mode**:
+  ```bash
+  python thirdparty/MonoGS/slam.py --config [config_file] --eval
+  ```
+
+### Package Installation
+
+- **Development Installation**:
+  ```bash
+  pip install -e .
+  ```
+
+- **Command Line Usage**:
+  ```bash
+  lmgs-reconstruction --help
+  ```
+
+### Testing and Benchmarks
+
+- **EfficientLoFTR Accuracy Tests**:
+  ```bash
+  cd thirdparty/EfficientLoFTR
+  bash scripts/reproduce_test/outdoor_full_auc.sh
+  bash scripts/reproduce_test/indoor_full_auc.sh
+  ```
+
+- **EfficientLoFTR Performance Tests**:
+  ```bash
+  cd thirdparty/EfficientLoFTR
+  bash scripts/reproduce_test/indoor_full_time.sh
+  bash scripts/reproduce_test/indoor_opt_time.sh
+  ```
+
+## Key Configuration Files
+
+- **MonoGS Base Config**: `thirdparty/MonoGS/configs/mono/tum/base_config.yaml` - Contains training parameters, optimization settings, and model configurations
+- **EfficientLoFTR Configs**: Located in `thirdparty/EfficientLoFTR/configs/` with different dataset and model configurations
+
+## System Integration Points
+
+The modular system is organized as follows:
+
+### Package Structure
+```
+lmgs_reconstruction/
+├── __init__.py                    # Main package imports
+├── camera/                        # Camera management
+│   ├── smart_camera_manager.py    # Smart camera detection and fallback
+│   └── mock_camera.py            # Simulated camera data generation
+├── reconstruction/                # 3D reconstruction algorithms
+│   ├── hybrid_reconstructor.py    # Main reconstruction coordinator
+│   ├── loftr_processor.py        # EfficientLoFTR integration
+│   ├── stereo_processor.py       # Traditional stereo vision
+│   └── mono_processor.py         # Monocular processing
+├── visualization/                 # Display and visualization
+│   ├── viewer_3d.py              # 3D point cloud viewer
+│   ├── display_manager.py        # Layout and canvas management
+│   └── ultimate_viz.py           # Main visualization coordinator
+└── utils/                        # Utilities
+    └── dependencies.py           # Third-party library management
 ```
 
-## Main Commands
+### Key Integration Points
 
-### Hybrid SLAM System
-```bash
-# Basic dual-camera run
-python run_hybrid_slam.py --config configs/stereo_camera_config.yaml
+- **Camera System**: `SmartCameraManager` automatically detects real cameras and falls back to `MockCameraGenerator`
+- **Reconstruction Pipeline**: `HybridAdvanced3DReconstructor` coordinates between LoFTR, stereo, and mono processors
+- **Visualization System**: `UltimateVisualization` manages the display pipeline with modular components
+- **Dependency Management**: Automatic detection and graceful fallback when third-party libraries are unavailable
 
-# Mock data testing
-python run_hybrid_slam.py --mock
+## Important Dependencies
 
-# High performance (no visualization)
-python run_hybrid_slam.py --no-vis --device cuda
+- **PyTorch**: Required for both EfficientLoFTR and MonoGS (version compatibility important)
+- **OpenCV**: Core computer vision operations
+- **Matplotlib**: 3D visualization
+- **NumPy**: Mathematical operations
+- **CUDA**: GPU acceleration (optional but recommended)
 
-# Custom save directory
-python run_hybrid_slam.py --save-dir results/experiment1
-```
+## Development Notes
 
-### Testing
-```bash
-# Run all tests
-python run_tests.py
+### Modular Design Benefits
+- **Separation of Concerns**: Each module has a specific responsibility (camera, reconstruction, visualization)
+- **Easy Testing**: Individual components can be tested in isolation
+- **Flexible Configuration**: Components can be easily swapped or upgraded
+- **Graceful Degradation**: System works even when advanced libraries are unavailable
 
-# Run specific test types
-python run_tests.py --type unit
-python run_tests.py --type integration
+### Migration from Legacy System
+- **Legacy Script**: The original `3d_reconstruction.py` (934 lines) has been split into focused modules
+- **Backward Compatibility**: Original functionality is preserved in the new modular system
+- **Enhanced Features**: New command-line interface with more configuration options
+- **Better Error Handling**: Improved error reporting and recovery mechanisms
 
-# Run with coverage
-python run_tests.py --coverage
+### Development Practices
+- **Smart Fallbacks**: System automatically uses OpenCV when EfficientLoFTR/MonoGS unavailable
+- **Mock Data Generation**: Comprehensive simulation for development without physical cameras
+- **Real-time Performance**: Frame rate limiting and intelligent point cloud management
+- **Cross-platform Support**: Works on Windows and Linux with appropriate camera backends
+- **Modular Installation**: Can install just the core system or with optional advanced features
 
-# Check dependencies
-python run_tests.py --check-deps
-
-# Or use pytest directly
-pytest                              # All tests
-pytest tests/unit/                  # Unit tests only
-pytest tests/integration/           # Integration tests only
-pytest -v --cov=hybrid_slam         # With coverage
-
-# Quick testing without visualization
-python run_hybrid_slam.py --mock --no-vis
-```
-
-### MonoGS (standalone)
-```bash
-cd thirdparty/MonoGS
-
-# Basic mono SLAM
-python slam.py --config configs/mono/tum/fr3_office.yaml
-
-# RGB-D mode
-python slam.py --config configs/rgbd/tum/fr3_office.yaml
-python slam.py --config configs/rgbd/replica/office0.yaml
-
-# Evaluation mode
-python slam.py --config configs/mono/tum/fr3_office.yaml --eval
-```
-
-### EfficientLoFTR (standalone)
-```bash
-cd thirdparty/EfficientLoFTR
-
-# Training
-python train.py [data_cfg_path] [main_cfg_path] --exp_name=[exp_name]
-
-# Testing
-python test.py [data_cfg_path] [main_cfg_path] --ckpt_path=[checkpoint_path]
-
-# Evaluation scripts (requires bash)
-bash scripts/reproduce_test/indoor_full_auc.sh
-bash scripts/reproduce_test/outdoor_full_auc.sh
-```
-
-## Code Architecture
-
-### Main Package Structure
-```
-hybrid_slam/                    # Main hybrid SLAM package
-├── core/                      # Core system components
-│   └── slam_system.py        # HybridSLAMSystem main class
-├── frontend/                 # Frontend tracking modules
-│   ├── hybrid_frontend.py    # Main frontend coordinator
-│   ├── feature_tracker.py    # Feature-based tracking
-│   ├── pnp_tracker.py        # PnP-based tracking
-│   └── render_tracker.py     # Render-based tracking
-├── matchers/                 # Feature matching implementations
-│   ├── loftr_matcher.py      # EfficientLoFTR wrapper
-│   └── matcher_base.py       # Base matcher interface
-├── solvers/                  # Geometric solvers
-│   ├── pnp_solver.py         # PnP pose estimation
-│   └── pose_estimator.py     # Pose estimation utilities
-└── utils/                    # Utility modules
-    ├── config_manager.py     # Configuration management
-    ├── data_structures.py    # Core data structures (StereoFrame, etc.)
-    ├── performance_monitor.py # Performance monitoring
-    └── visualization.py      # Real-time visualization
-```
-
-### Key Classes and Entry Points
-- **HybridSLAMSystem** (`hybrid_slam/core/slam_system.py`): Main system orchestrator
-- **HybridFrontEnd** (`hybrid_slam/frontend/hybrid_frontend.py`): Frontend tracking coordinator
-- **EfficientLoFTRMatcher** (`hybrid_slam/matchers/loftr_matcher.py`): Feature matching interface
-- **PnPSolver** (`hybrid_slam/solvers/pnp_solver.py`): Geometric pose solver
-- **StereoFrame** (`hybrid_slam/utils/data_structures.py`): Core data structure for stereo input
-
-### Configuration System
-The system uses hierarchical YAML configurations:
-- `configs/base/`: Base configuration templates
-- `configs/datasets/`: Dataset-specific configurations (TUM, Replica, EuRoC)
-- `configs/models/`: Model configurations (EfficientLoFTR variants)
-
-## Development Workflow
-
-### Code Quality Tools
-```bash
-# For MonoGS components (if ruff is installed)
-cd thirdparty/MonoGS
-ruff check .
-ruff format .
-
-# For EfficientLoFTR components (if pylint is installed)
-cd thirdparty/EfficientLoFTR
-pylint src/
-
-# For main hybrid_slam package
-black hybrid_slam/ --check
-flake8 hybrid_slam/
-
-# Basic Python syntax check
-python -m py_compile hybrid_slam/**/*.py
-```
-
-### Adding New Components
-1. **New Matchers**: Inherit from `BaseMatcher` in `hybrid_slam/matchers/matcher_base.py`
-2. **New Trackers**: Inherit from `BaseTracker` in `hybrid_slam/core/base_tracker.py`
-3. **New Datasets**: Implement iterator returning `StereoFrame` objects
-4. **New Solvers**: Follow interface patterns in `hybrid_slam/solvers/`
-
-### Dataset Preparation
-```bash
-# Download MonoGS datasets (Linux/WSL)
-bash thirdparty/MonoGS/scripts/download_tum.sh
-bash thirdparty/MonoGS/scripts/download_replica.sh
-bash thirdparty/MonoGS/scripts/download_euroc.sh
-
-# Download EfficientLoFTR model weights
-python scripts/download_models.py --models outdoor indoor
-
-# For Windows users: manually download datasets from official sources
-# TUM: https://vision.in.tum.de/data/datasets/rgbd-dataset
-# Replica: https://github.com/facebookresearch/Replica-Dataset
-```
-
-## System Requirements and Performance
-
-- **GPU**: NVIDIA GPU with CUDA support (RTX 3060+ recommended)
-- **Memory**: 8GB+ RAM, 6GB+ GPU memory for optimal performance
-- **Camera**: USB 3.0 dual cameras for real-time operation
-- **Performance Targets**: 20+ FPS real-time processing
-
-### Common Configuration Adjustments
-```yaml
-# High performance settings
-performance_targets:
-  target_fps: 30
-  max_memory_gb: 16
-  max_gpu_memory_gb: 8
-
-# Memory optimization
-performance_targets:
-  target_fps: 15
-  max_gpu_memory_gb: 4
-```
-
-## Troubleshooting
-
-### CUDA Extensions Build Issues
-```bash
-# Ensure CUDA toolkit is properly installed
-nvcc --version
-
-# Rebuild extensions
-cd thirdparty/MonoGS
-pip uninstall simple-knn diff-gaussian-rasterization
-pip install ./submodules/simple-knn
-pip install ./submodules/diff-gaussian-rasterization
-```
-
-### EfficientLoFTR Model Loading
-- The system gracefully falls back to OpenCV features if EfficientLoFTR fails to load
-- Check model weights are present in `thirdparty/EfficientLoFTR/weights/`
-- Use `python scripts/download_models.py` to download missing weights
-
-### Camera Issues
-```bash
-# Test camera access
-python diagnose_cameras.py
-
-# Test camera calibration
-python camera_calibration.py
-
-# Try different device IDs in config
-input:
-  camera:
-    left_device: 0
-    right_device: 1
-
-# For Windows camera backend issues
-python fix_camera_backend.py
-```
-
-## Project Status
-
-This is an active research project combining multiple SLAM approaches. The main hybrid system integrates:
-
-1. **Feature Matching**: EfficientLoFTR for robust correspondences
-2. **Geometric Constraints**: OpenCV PnP for pose estimation
-3. **Backend Optimization**: MonoGS Gaussian splatting for scene reconstruction
-4. **Real-time Processing**: Dual-camera stereo vision system
-
-Key files to understand the system:
-- `run_hybrid_slam.py`: Main entry point
-- `hybrid_slam/core/slam_system.py`: System orchestrator  
-- `hybrid_slam/frontend/hybrid_frontend.py`: Frontend processing
-- `hybrid_slam/gui/`: Qt-based GUI components
-- `run_qt_slam.py`: GUI version entry point
-- Configuration files in `configs/` for different setups
-- `diagnose_cameras.py`: Camera diagnostics utility
-- `scripts/`: Various utility scripts
-
-## Additional Utilities
-
-### Camera Setup and Calibration
-```bash
-# Camera diagnostics
-python diagnose_cameras.py
-
-# Camera calibration
-python camera_calibration.py
-
-# Test dual camera setup
-python cam.py
-```
-
-### GUI Version
-```bash
-# Run Qt-based GUI
-python run_qt_slam.py
-
-# Test Qt GUI components
-python test_qt_slam.py
-```
-
-### Performance Analysis
-```bash
-# Profile system performance
-python tools/profile_performance.py
-
-# Evaluate performance metrics
-python scripts/evaluate_performance.py
-```
+### Code Organization
+- Each module is self-contained with clear interfaces
+- Chinese comments preserved where they provide important context
+- Configuration through command-line arguments rather than hardcoded values
+- Output management with automatic saving and performance monitoring

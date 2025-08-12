@@ -23,7 +23,7 @@ class RealTimeStereoMatcher:
         self.matcher = LoFTR(config=_default_cfg)
         
         # Load pretrained weights
-        checkpoint = torch.load(weights_path, map_location=self.device)
+        checkpoint = torch.load(weights_path, map_location=self.device, weights_only=False)
         self.matcher.load_state_dict(checkpoint['state_dict'])
         self.matcher = reparameter(self.matcher)
         self.matcher = self.matcher.eval().to(self.device)
@@ -156,7 +156,7 @@ class RealTimeStereoMatcher:
         
         return mkpts0, mkpts1, mconf, processing_time
     
-    def run(self, cam0_id=0, cam1_id=1, skip_frames=2):
+    def run(self, cam0_id=0, cam1_id=2, skip_frames=2):
         """Main execution loop"""
         # Initialize cameras
         cap0 = cv2.VideoCapture(cam0_id)
