@@ -35,6 +35,8 @@ def parse_arguments():
     parser.add_argument('--window-size', nargs=2, type=int, default=[1600, 1000],
                        metavar=('WIDTH', 'HEIGHT'),
                        help='窗口尺寸 (默认: 1600 1000)')
+    parser.add_argument('--camera-config', type=str, default='camera_calibration.yaml',
+                       help='相机参数配置文件路径 (默认: camera_calibration.yaml)')
     
     return parser.parse_args()
 
@@ -59,6 +61,7 @@ def print_system_info(args, camera_manager, reconstructor):
     print(f"输出目录: {args.output_dir}")
     print(f"窗口尺寸: {args.window_size[0]}x{args.window_size[1]}")
     print(f"运行模式: {'无头模式' if args.headless else 'GUI模式'}")
+    print(f"相机配置: {args.camera_config}")
     
     # 相机状态
     is_mock = camera_manager.use_mock
@@ -95,7 +98,7 @@ def main():
     # 初始化系统组件
     print("初始化系统组件...")
     camera_manager = SmartCameraManager(max_cameras=args.max_cameras)
-    reconstructor = HybridAdvanced3DReconstructor(device=args.device)
+    reconstructor = HybridAdvanced3DReconstructor(device=args.device, camera_config_path=args.camera_config)
     
     # 初始化可视化系统
     if args.headless:

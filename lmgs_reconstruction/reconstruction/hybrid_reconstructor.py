@@ -5,6 +5,7 @@ Hybrid Advanced 3D Reconstructor - 混合高级3D重建器
 
 import torch
 import numpy as np
+import yaml
 from pathlib import Path
 
 from ..utils.dependencies import LOFTR_AVAILABLE, MONOGS_AVAILABLE
@@ -16,12 +17,13 @@ from .mono_processor import MonoProcessor
 class HybridAdvanced3DReconstructor:
     """混合高级3D重建器 - 集成EfficientLoFTR和MonoGS"""
     
-    def __init__(self, device='cpu'):
+    def __init__(self, device='cpu', camera_config_path='camera_calibration.yaml'):
         """
         初始化重建器
         
         Args:
             device: 计算设备 ('cpu' 或 'cuda')
+            camera_config_path: 相机参数配置文件路径
         """
         self.points_3d = []
         self.colors_3d = []
@@ -30,17 +32,71 @@ class HybridAdvanced3DReconstructor:
         # 设备配置
         self.device = torch.device(device)
         
-        # 相机参数
-        self.camera_params = {
-            'fx': 525.0,
-            'fy': 525.0,
-            'cx': 320.0,
-            'cy': 240.0,
-            'baseline': 0.12
-        }
+        # 加载相机参数
+        self.camera_params = self._load_camera_params(camera_config_path)
         
         # 初始化处理器
         self._init_processors()
+        
+    def _load_camera_params(self, config_path):
+        """
+        从YAML文件加载相机参数
+        
+        Args:
+            config_path: 配置文件路径
+            
+        Returns:
+            dict: 相机参数字典
+        """
+        # 默认相机参数
+        default_params = {
+            'fx': 1129.8,
+            'fy': 1130.4,
+            'cx': 932.5,
+            'cy': 542.1,
+            'baseline': 0.12
+        }
+        
+        try:
+            # 尝试从当前目录或绝对路径加载
+            if not Path(config_path).is_absolute():
+                config_path = Path.cwd() / config_path
+            
+            if Path(config_path).exists():
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = yaml.safe_load(f)
+                
+                if config and 'camera_matrix' in config:
+                    # 从相机矩阵提取内参
+                    camera_matrix = np.array(config['camera_matrix'])
+                    params = {
+                        'fx': float(camera_matrix[0, 0]),
+                        'fy': float(camera_matrix[1, 1]),
+                        'cx': float(camera_matrix[0, 2]),
+                        'cy': float(camera_matrix[1, 2]),
+                        'baseline': 0.12  # 立体相机基线，需要根据实际硬件配置
+                    }
+                    
+                    # 如果有图像尺寸信息，更新默认值
+                    if 'image_size' in config:
+                        params['image_width'] = config['image_size'][0]
+                        params['image_height'] = config['image_size'][1]
+                    
+                    # 如果有畸变参数，也保存
+                    if 'distortion_coefficients' in config:
+                        params['distortion_coeffs'] = np.array(config['distortion_coefficients']).flatten()
+                    
+                    print(f"已从 {config_path} 加载相机参数")
+                    print(f"fx: {params['fx']:.1f}, fy: {params['fy']:.1f}")
+                    print(f"cx: {params['cx']:.1f}, cy: {params['cy']:.1f}")
+                    
+                    return params
+                    
+        except Exception as e:
+            print(f"加载相机参数失败: {e}")
+            print(f"使用默认相机参数")
+        
+        return default_params
         
     def _init_processors(self):
         """初始化各种处理器"""
